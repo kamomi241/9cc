@@ -1,0 +1,88 @@
+[33mcommit 26e42db6aab7dbf2f552fef63d5cdfd8ae1880b3[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: kamo <gaoqiaohexi14@gmail.com>
+Date:   Wed Aug 24 17:46:20 2022 +0900
+
+    整数１つをコンパイルするコンパイラを作成
+
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mnew file mode 100644[m
+[1mindex 0000000..101be16[m
+[1m--- /dev/null[m
+[1m+++ b/.gitignore[m
+[36m@@ -0,0 +1,5 @@[m
+[32m+[m[32m*~[m[41m[m
+[32m+[m[32m*.o[m[41m[m
+[32m+[m[32mtmp*[m[41m[m
+[32m+[m[32ma.out[m[41m[m
+[32m+[m[32m9cc[m
+\ No newline at end of file[m
+[1mdiff --git a/9cc.c b/9cc.c[m
+[1mnew file mode 100644[m
+[1mindex 0000000..4371a6b[m
+[1m--- /dev/null[m
+[1m+++ b/9cc.c[m
+[36m@@ -0,0 +1,16 @@[m
+[32m+[m[32m#include <stdio.h>[m[41m[m
+[32m+[m[32m#include <stdlib.h>[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mint main(int argc, char **argv) {[m[41m[m
+[32m+[m[32m  if (argc != 2) {[m[41m[m
+[32m+[m[32m    fprintf(stderr, "引数の個数が正しくありません\n");[m[41m[m
+[32m+[m[32m    return 1;[m[41m[m
+[32m+[m[32m  }[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m  printf(".intel_syntax noprefix\n");[m[41m[m
+[32m+[m[32m  printf(".globl main\n");[m[41m[m
+[32m+[m[32m  printf("main:\n");[m[41m[m
+[32m+[m[32m  printf("  mov rax, %d\n", atoi(argv[1]));[m[41m[m
+[32m+[m[32m  printf("  ret\n");[m[41m[m
+[32m+[m[32m  return 0;[m[41m[m
+[32m+[m[32m}[m
+\ No newline at end of file[m
+[1mdiff --git a/Makefile b/Makefile[m
+[1mnew file mode 100644[m
+[1mindex 0000000..e11beff[m
+[1m--- /dev/null[m
+[1m+++ b/Makefile[m
+[36m@@ -0,0 +1,11 @@[m
+[32m+[m[32mCFLAGS = -std = c11 - g - static[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m9cc: 9cc.c[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mtest : 9cc[m[41m[m
+[32m+[m[32m. / test.sh[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32mclean :[m[41m[m
+[32m+[m[32mrm - f 9cc * .o * ~tmp *[m[41m[m
+[32m+[m[41m[m
+[32m+[m[32m.PHONY : test clean[m
+\ No newline at end of file[m
+[1mdiff --git a/test.sh b/test.sh[m
+[1mnew file mode 100644[m
+[1mindex 0000000..5b23bd8[m
+[1m--- /dev/null[m
+[1m+++ b/test.sh[m
+[36m@@ -0,0 +1,22 @@[m
+[32m+[m[32m#!/bin/bash[m
+[32m+[m[32massert() {[m
+[32m+[m[32m  expected="$1"[m
+[32m+[m[32m  input="$2"[m
+[32m+[m
+[32m+[m[32m  ./9cc "$input" > tmp.s[m
+[32m+[m[32m  cc -o tmp tmp.s[m
+[32m+[m[32m  ./tmp[m
+[32m+[m[32m  actual="$?"[m
+[32m+[m
+[32m+[m[32m  if [ "$actual" = "$expected" ]; then[m
+[32m+[m[32m    echo "$input => $actual"[m
+[32m+[m[32m  else[m
+[32m+[m[32m    echo "$input => $expected expected, but got $actual"[m
+[32m+[m[32m    exit 1[m
+[32m+[m[32m  fi[m
+[32m+[m[32m}[m
+[32m+[m
+[32m+[m[32massert 0 0[m
+[32m+[m[32massert 42 42[m
+[32m+[m
+[32m+[m[32mecho OK[m
+\ No newline at end of file[m
