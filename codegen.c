@@ -55,6 +55,11 @@ void gen(Node *node) {
       printf("  pop rax\n");
     }
     return;
+    char name[100] = {0};
+  case ND_FUNCTION:
+    memcpy(name, node->function, node->len);
+    printf("  call %s\n",name);
+    return;
   case ND_RETURN:
     gen(node->lhs);
     printf("  pop rax\n");
