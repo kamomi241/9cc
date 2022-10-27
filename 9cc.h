@@ -19,7 +19,6 @@ typedef enum {
     TK_WHILE,    //while
     TK_FOR,      //for
     TK_BLOCK,   //{}
-    TK_FUNCTION, //関数
 } TokenKind;
 typedef struct Token Token;
 // トークン型
@@ -89,8 +88,8 @@ struct Node {
     Node *for_l;   //for初期化
     Node *for_r;   //for演算
     Node **block;   //{}
-    char *function;
-    int len;
+    char *function; //関数
+    int len;        //変数の長さ
     int val;       // kindがND_NUMの場合のみ使う
     int offset;    // kindがND_LVARの場合のみ使う
 };

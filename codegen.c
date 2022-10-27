@@ -10,6 +10,7 @@ void gen_lval(Node *node) {
 }
 
 int label_num = 0;
+char name[100] = {0};
 void gen(Node *node) {
   switch (node->kind) {
   case ND_IF:
@@ -50,15 +51,19 @@ void gen(Node *node) {
     label_num++;
     return;
   case ND_BLOCK:
-    for(int loop = 0;node->block[loop];loop++) {
-      gen(node->block[loop]);
+    for(int i = 0;node->block[i];i++) {
+      gen(node->block[i]);
       printf("  pop rax\n");
     }
     return;
-    char name[100] = {0};
   case ND_FUNCTION:
     memcpy(name, node->function, node->len);
-    printf("  call %s\n",name);
+    for (int i = 0; node->block[i]; i++) {
+      gen(node->block[i]);
+    }
+    printf("  pop rsi\n");
+    printf("  pop rdi\n");
+    printf("  call %s\n", name);
     return;
   case ND_RETURN:
     gen(node->lhs);

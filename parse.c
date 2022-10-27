@@ -69,8 +69,8 @@ Node *stmt() {
         node = calloc(1,sizeof(Node));
         node->block= calloc(100,sizeof(Node));
         node->kind = ND_BLOCK;
-        for(int loop = 0;!consume("}");loop++)
-            node->block[loop] = stmt();
+        for(int i = 0;!consume("}");i++)
+            node->block[i] = stmt();
         return node;
     }
     if (consume_return()) {
@@ -165,7 +165,14 @@ Node *primary() {
             node->kind = ND_FUNCTION;
             node->function = tok->str;
             node->len = tok->len;
-            expect(")");
+            node->block = calloc(6, sizeof(Node));
+            for(int i = 0; !consume(")"); i++) {
+                node->block[i] = expr();
+                if (consume(")")) {
+                    break;
+                    }
+                expect(",");
+            }
             return node;
         }
         Node *node = calloc(1, sizeof(Node));
