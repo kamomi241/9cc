@@ -76,6 +76,7 @@ typedef enum {
     ND_NUM, // 整数
     ND_RETURN, //return
     ND_BLOCK,  //{}
+    ND_FUNCTION, //関数
 } NodeKind;
 typedef struct Node Node;
 // 抽象構文木のノードの型
@@ -87,6 +88,8 @@ struct Node {
     Node *for_l;   //for初期化
     Node *for_r;   //for演算
     Node **block;   //{}
+    char *function; //関数
+    int len;        //変数の長さ
     int val;       // kindがND_NUMの場合のみ使う
     int offset;    // kindがND_LVARの場合のみ使う
 };

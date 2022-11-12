@@ -9,7 +9,10 @@ void gen_lval(Node *node) {
   printf("  push rax\n");
 }
 
-int label_num = 0;
+int label_num = 0; 
+char name[100] = {0};
+char *regis[6] = {"rdi","rsi","rdx","rcx","r8","r9"};
+
 void gen(Node *node) {
   switch (node->kind) {
   case ND_IF:
@@ -50,10 +53,32 @@ void gen(Node *node) {
     label_num++;
     return;
   case ND_BLOCK:
-    for(int loop = 0;node->block[loop];loop++) {
-      gen(node->block[loop]);
+    for(int i = 0;node->block[i];i++) {
+      gen(node->block[i]);
       printf("  pop rax\n");
     }
+    return;
+  case ND_FUNCTION:
+    memcpy(name, node->function, node->len);
+    int register_count = 0;
+    for (int i = 0; node->block[i]; i++) {
+      register_count++;
+      gen(node->block[i]);
+    }
+    for (int i = 0; i < register_count; i++)
+      printf("  pop %s\n",regis[i]);
+    printf("  mov rax, rsp\n");
+    printf("  and rax, 15\n");
+    printf("  jnz .false%d\n", label_num);
+    printf("  mov rax, 0\n");
+    printf("  call %s\n", name);
+    printf("  jmp .true%d\n", label_num);
+    printf(".false%d:\n", label_num);
+    printf("  sub rsp, 8\n");
+    printf("  mov rax, 0\n");
+    printf("  call %s\n", name);
+    printf("  add rsp, 8\n");
+    printf(".true%d:\n", label_num);
     return;
   case ND_RETURN:
     gen(node->lhs);

@@ -6,8 +6,6 @@ char *user_input;
 // 現在着目しているトークン
 Token *token;
 
-LVar *locals;
-
 // エラーを報告するための関数
 // printfと同じ引数を取る
 void error(char *fmt, ...) {
@@ -163,7 +161,7 @@ Token *tokenize() {
             continue;
         }
 
-        if (strchr("+-*/()<>=;{}", *p)) {
+        if (strchr("+-*/()<>=;{},", *p)) {
             cur = new_token(TK_RESERVED, cur, p++, 1);
             continue;
         }
