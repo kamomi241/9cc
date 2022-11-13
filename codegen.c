@@ -79,6 +79,11 @@ void gen(Node *node) {
     printf("  call %s\n", name);
     printf("  add rsp, 8\n");
     printf(".true%d:\n", label_num);
+    printf("  push rax\n");
+    return;
+  case ND_FUNCBLOCK:
+    for (int i = 0; node->block[i]; i++)
+      gen(node->block[i]);
     return;
   case ND_RETURN:
     gen(node->lhs);
@@ -104,6 +109,15 @@ void gen(Node *node) {
     printf("  pop rax\n");
     printf("  mov [rax], rdi\n");
     printf("  push rdi\n");
+    return;
+  case ND_ADDR:
+    gen_lval(node->lhs);
+    return;
+  case ND_DEREF:
+    gen(node->lhs);
+    printf("  pop rax\n");
+    printf("  mov rax, [rax]\n");
+    printf("  push rax\n");
     return;
   }
 

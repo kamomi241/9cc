@@ -26,8 +26,27 @@ Node *code[100];
 void program() {
     int i = 0;
     while (!at_eof())
-        code[i++] = stmt();
+        code[i++] = function();
     code[i] = NULL;
+}
+
+Node *function() {
+    Node *node;
+    Token *tok = consume_ident();
+    if (consume_ident()) {
+        error("関数ではありません");
+    }
+    node = calloc(1, sizeof(Node));
+    node->kind = ND_FUNCBLOCK;
+    node->function = calloc(1, sizeof(char));
+    memcpy(node->function, tok->str,tok->len);
+    expect("(");
+    expect(")");
+    expect("{");
+    node->block = calloc(100,sizeof(Node));
+    for(int i = 0; !consume("}"); i++)
+        node->block[i] = stmt();
+    return node;
 }
 
 Node *stmt() {
@@ -141,16 +160,20 @@ Node *mul() {
             node = new_binary(ND_MUL, node, unary());
         else if (consume("/"))
             node = new_binary(ND_DIV, node, unary());
-        else
+        else 
             return node;
     }
 }
 Node *unary() {
-     if (consume("+"))
-          return unary();
-     if (consume("-"))
-          return new_binary(ND_SUB, new_node_num(0), unary());
-     return primary();
+    if (consume("+"))
+        return unary();
+    if (consume("-"))
+        return new_binary(ND_SUB, new_node_num(0), unary());
+    if (consume("*"))
+            return new_binary(ND_DEREF, primary(), NULL);
+    if(consume("&"))
+            return new_binary(ND_ADDR, primary(), NULL);
+    return primary();
 }
 Node *primary() {
       // 次のトークンが"("なら、"(" expr ")"のはず

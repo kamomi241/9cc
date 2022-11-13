@@ -77,6 +77,9 @@ typedef enum {
     ND_RETURN, //return
     ND_BLOCK,  //{}
     ND_FUNCTION, //関数
+    ND_FUNCBLOCK,//関数の定義
+    ND_ADDR,     //単項&
+    ND_DEREF,    //単項*
 } NodeKind;
 typedef struct Node Node;
 // 抽象構文木のノードの型
@@ -107,6 +110,7 @@ Token *consume_while();
 Token *consume_for();
 
 void program();
+Node *function();
 Node *stmt();
 Node *expr();
 Node *assign();
