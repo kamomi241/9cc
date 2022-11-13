@@ -19,6 +19,7 @@ typedef enum {
     TK_WHILE,    //while
     TK_FOR,      //for
     TK_BLOCK,   //{}
+    TK_TYPE,    //型
 } TokenKind;
 typedef struct Token Token;
 // トークン型
@@ -108,6 +109,7 @@ Token *consume_if();
 Token *consume_else();
 Token *consume_while();
 Token *consume_for();
+Token *consume_type();
 
 void program();
 Node *function();

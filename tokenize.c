@@ -85,6 +85,13 @@ Token *consume_for() {
     token = token->next;
     return tok;
 }
+Token *consume_type() {
+    if(token->kind != TK_TYPE)
+        return NULL;
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
 int is_alnum(char c) {
     return ('a' <= c && c <= 'z') ||
          ('A' <= c && c <= 'Z') ||
@@ -98,7 +105,7 @@ void expect(char *op) {
     if (token->kind != TK_RESERVED ||
         strlen(op) != token->len ||
         memcmp(token->str, op, token->len))
-        error_at(token->str,"'%c'ではありません", op);
+        error_at(token->str,"'%s'ではありません", op);
     token = token->next;
 }
 
@@ -188,6 +195,11 @@ Token *tokenize() {
         }
         if(strncmp(p, "for",3) == 0 && !is_alnum(p[3])) {
             cur = new_token(TK_FOR,cur,p,3);
+            p += 3;
+            continue;
+        }
+        if(strncmp(p, "int",3) == 0 && !is_alnum(p[3])) {
+            cur = new_token(TK_TYPE, cur, p, 3);
             p += 3;
             continue;
         }

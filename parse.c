@@ -32,10 +32,12 @@ void program() {
 
 Node *function() {
     Node *node;
-    Token *tok = consume_ident();
-    if (consume_ident()) {
-        error("関数ではありません");
-    }
+    Token *tok = consume_type();
+    if(tok == NULL)
+        error("型がありません");
+    tok = consume_ident();
+    if(tok == NULL)
+        error("関数がありません");
     node = calloc(1, sizeof(Node));
     node->kind = ND_FUNCBLOCK;
     node->function = calloc(1, sizeof(char));
@@ -182,43 +184,58 @@ Node *primary() {
         expect(")");
         return node;
     }
-    Token *tok = consume_ident();
-    if (tok) {
-        if(consume("(")) {
-            Node *node = calloc(1,sizeof(Node));
-            node->kind = ND_FUNCTION;
-            node->function = tok->str;
-            node->len = tok->len;
-            node->block = calloc(6, sizeof(Node));
-            for(int i = 0; !consume(")"); i++) {
-                node->block[i] = expr();
-                if (consume(")")) {
-                    break;
-                    }
-                expect(",");
+    Token *tok = consume_type();
+    if(tok) {
+        tok = consume_ident();
+        if (tok) {
+            if(consume("(")) {
+                Node *node = calloc(1,sizeof(Node));
+                node->kind = ND_FUNCTION;
+                node->function = tok->str;
+                node->len = tok->len;
+                node->block = calloc(6, sizeof(Node));
+                for(int i = 0; !consume(")"); i++) {
+                    node->block[i] = expr();
+                    if (consume(")")) {
+                        break;
+                        }
+                    expect(",");
+                }
+                return node;
+            }
+            Node *node = calloc(1, sizeof(Node));
+            node->kind = ND_LVAR;
+
+            LVar *lvar = find_lvar(tok);
+            if (lvar) {
+                node->offset = lvar->offset;
+            } else {
+                lvar = calloc(1, sizeof(LVar));
+                lvar->next = locals;
+                lvar->name = tok->str;
+                lvar->len = tok->len;
+                if(locals == NULL)
+                    lvar->offset = 8;
+                else 
+                    lvar->offset = locals->offset + 8;
+                node->offset = lvar->offset;
+                locals = lvar;
             }
             return node;
         }
-        Node *node = calloc(1, sizeof(Node));
-        node->kind = ND_LVAR;
-
+    }
+    //宣言された変数の使用
+    tok = consume_ident();
+    if (tok) {
         LVar *lvar = find_lvar(tok);
         if (lvar) {
+            Node *node = calloc(1, sizeof(Node));
+            node->kind = ND_LVAR;
             node->offset = lvar->offset;
-        } else {
-            lvar = calloc(1, sizeof(LVar));
-            lvar->next = locals;
-            lvar->name = tok->str;
-            lvar->len = tok->len;
-            if(locals == NULL)
-                lvar->offset = 8;
-            else 
-                lvar->offset = locals->offset + 8;
-            node->offset = lvar->offset;
-            locals = lvar;
-        }
-        return node;
+            return node;
+        } 
     }
+    
     // そうでなければ数値のはず
     return new_node_num(expect_number());
 }
