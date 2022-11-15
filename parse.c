@@ -172,9 +172,9 @@ Node *unary() {
     if (consume("-"))
         return new_binary(ND_SUB, new_node_num(0), unary());
     if (consume("*"))
-            return new_binary(ND_DEREF, primary(), NULL);
+            return new_binary(ND_DEREF, unary(), NULL);
     if(consume("&"))
-            return new_binary(ND_ADDR, primary(), NULL);
+            return new_binary(ND_ADDR, unary(), NULL);
     return primary();
 }
 Node *primary() {
@@ -186,8 +186,18 @@ Node *primary() {
     }
     Token *tok = consume_type();
     if(tok) {
+        //ポインタ
+        while(consume("*")) {
+            Type *type;
+            Type *t;
+            t = calloc(1, sizeof(Type));
+            t->ty = PTR;
+            t->ptr_to = type;
+            type = t;
+        }
         tok = consume_ident();
         if (tok) {
+            //引数
             if(consume("(")) {
                 Node *node = calloc(1,sizeof(Node));
                 node->kind = ND_FUNCTION;
@@ -203,13 +213,16 @@ Node *primary() {
                 }
                 return node;
             }
+            //変数検索
             Node *node = calloc(1, sizeof(Node));
             node->kind = ND_LVAR;
 
             LVar *lvar = find_lvar(tok);
             if (lvar) {
                 node->offset = lvar->offset;
-            } else {
+            } 
+            //変数宣言
+            else {
                 lvar = calloc(1, sizeof(LVar));
                 lvar->next = locals;
                 lvar->name = tok->str;
@@ -222,6 +235,7 @@ Node *primary() {
                 locals = lvar;
             }
             return node;
+        error("変数がありません");
         }
     }
     //宣言された変数の使用
