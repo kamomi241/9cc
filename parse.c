@@ -146,10 +146,22 @@ Node *add() {
     Node *node = mul();
 
     for(;;) {
-        if(consume("+"))
-            node = new_binary(ND_ADD,node,mul());
-        else if (consume("-"))
-            node = new_binary(ND_SUB,node,mul());
+        if(consume("+")){
+            Node *r = mul();
+            if (node->type && node->type->ty == PTR) {
+                int n = node->type->ptr_to->ty == INT ? 4 : 8;
+                r = new_binary(ND_MUL, r, new_node_num(n));
+            }
+            node = new_binary(ND_ADD, node, r);
+        }
+        else if (consume("-")){
+            Node *r = mul();
+            if (node->type && node->type->ty == PTR) {
+                int n = node->type->ptr_to->ty == INT ? 4 : 8;
+                r = new_binary(ND_MUL, r, new_node_num(n));
+            }
+            node = new_binary(ND_SUB, node, r);
+        }
         else 
             return node;
     }
@@ -185,10 +197,13 @@ Node *primary() {
         return node;
     }
     Token *tok = consume_type();
+    Type *type;
     if(tok) {
+            type = calloc(1, sizeof(Type));
+            type->ty = INT;
+            type->ptr_to = NULL;
         //ポインタ
         while(consume("*")) {
-            Type *type;
             Type *t;
             t = calloc(1, sizeof(Type));
             t->ty = PTR;
@@ -208,7 +223,7 @@ Node *primary() {
                     node->block[i] = expr();
                     if (consume(")")) {
                         break;
-                        }
+                    }
                     expect(",");
                 }
                 return node;
@@ -232,10 +247,11 @@ Node *primary() {
                 else 
                     lvar->offset = locals->offset + 8;
                 node->offset = lvar->offset;
+                node->type = type;
                 locals = lvar;
             }
             return node;
-        error("変数がありません");
+            error("変数がありません");
         }
     }
     //宣言された変数の使用
@@ -246,6 +262,7 @@ Node *primary() {
             Node *node = calloc(1, sizeof(Node));
             node->kind = ND_LVAR;
             node->offset = lvar->offset;
+            node->type =type;
             return node;
         } 
     }

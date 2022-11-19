@@ -69,8 +69,8 @@ void gen(Node *node) {
       register_count++;
       gen(node->block[i]);
     }
-    for (int i = 0; i < register_count; i++)
-      printf("  pop %s\n",regis[i]);
+    for (int i = register_count - 1; i >= 0; i--)
+      printf("  pop %s\n", regis[i]);
     printf("  mov rax, rsp\n");
     printf("  and rax, 15\n");
     printf("  jnz .false%d\n", label_num);
