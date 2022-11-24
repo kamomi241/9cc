@@ -146,7 +146,7 @@ Node *add() {
     Node *node = mul();
 
     for(;;) {
-        if(consume("+")){
+        if(consume("+")) {
             Node *r = mul();
             if (node->type && node->type->ty == PTR) {
                 int n = node->type->ptr_to->ty == INT ? 4 : 8;
@@ -154,7 +154,7 @@ Node *add() {
             }
             node = new_binary(ND_ADD, node, r);
         }
-        else if (consume("-")){
+        else if (consume("-")) {
             Node *r = mul();
             if (node->type && node->type->ty == PTR) {
                 int n = node->type->ptr_to->ty == INT ? 4 : 8;
@@ -168,7 +168,6 @@ Node *add() {
 }
 Node *mul() {
     Node *node = unary();
-
     for (;;) {
         if (consume("*"))
             node = new_binary(ND_MUL, node, unary());
@@ -184,9 +183,9 @@ Node *unary() {
     if (consume("-"))
         return new_binary(ND_SUB, new_node_num(0), unary());
     if (consume("*"))
-            return new_binary(ND_DEREF, unary(), NULL);
+        return new_binary(ND_DEREF, unary(), NULL);
     if(consume("&"))
-            return new_binary(ND_ADDR, unary(), NULL);
+        return new_binary(ND_ADDR, unary(), NULL);
     return primary();
 }
 Node *primary() {
@@ -197,11 +196,11 @@ Node *primary() {
         return node;
     }
     Token *tok = consume_type();
-    Type *type;
     if(tok) {
-            type = calloc(1, sizeof(Type));
-            type->ty = INT;
-            type->ptr_to = NULL;
+        Type *type;
+        type = calloc(1, sizeof(Type));
+        type->ty = INT;
+        type->ptr_to = NULL;
         //ポインタ
         while(consume("*")) {
             Type *t;
@@ -221,9 +220,8 @@ Node *primary() {
                 node->block = calloc(6, sizeof(Node));
                 for(int i = 0; !consume(")"); i++) {
                     node->block[i] = expr();
-                    if (consume(")")) {
+                    if (consume(")"))
                         break;
-                    }
                     expect(",");
                 }
                 return node;
@@ -233,9 +231,8 @@ Node *primary() {
             node->kind = ND_LVAR;
 
             LVar *lvar = find_lvar(tok);
-            if (lvar) {
+            if (lvar) 
                 node->offset = lvar->offset;
-            } 
             //変数宣言
             else {
                 lvar = calloc(1, sizeof(LVar));
@@ -246,8 +243,9 @@ Node *primary() {
                     lvar->offset = 8;
                 else 
                     lvar->offset = locals->offset + 8;
+                lvar->type = type;
+                node->type =lvar->type;
                 node->offset = lvar->offset;
-                node->type = type;
                 locals = lvar;
             }
             return node;
@@ -262,7 +260,7 @@ Node *primary() {
             Node *node = calloc(1, sizeof(Node));
             node->kind = ND_LVAR;
             node->offset = lvar->offset;
-            node->type =type;
+            node->type =lvar->type;
             return node;
         } 
     }

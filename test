@@ -87,6 +87,38 @@ for (int b = 0; b < 10;b = b + 1) {
 
 assert 12 "int main() {int foo(3,4,5);}"
 
+assert 3 "int main() {int x = 3;
+int y = &x;
+return *y;}
+"
+assert 3 "int main() {
+  int x = 3;
+int y = 5;
+int z = &y + 8;
+return *z;}
+"
 
+assert 3 "int main() {
+  int x;
+  int *y;
+  y = &x;
+  *y = 3;
+  return x;}
+"
+
+assert 4 "int main() {
+  int *p;
+  int alloc(&p, 1, 2, 4, 8);
+  int *q;
+  q = p + 2;
+  return *q;
+}"
+assert 8 "int main() {
+  int *p;
+  int alloc(&p, 1, 2, 4, 8);
+  int *q;
+  q = p + 3;
+  return *q;
+}"
 
 echo OK
