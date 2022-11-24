@@ -186,6 +186,11 @@ Node *unary() {
         return new_binary(ND_DEREF, unary(), NULL);
     if(consume("&"))
         return new_binary(ND_ADDR, unary(), NULL);
+    if(consume_sizeof()) {
+        Node *node = add();
+        int n = node->type && node->type->ty == PTR ? 8 : 4;
+        return new_node_num(n);
+    }
     return primary();
 }
 Node *primary() {

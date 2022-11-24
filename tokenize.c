@@ -41,6 +41,13 @@ bool consume(char *op) {
     return true;
 }
 
+Token *consume_sizeof() {
+    if(token->kind != TK_SIZEOF)
+        return NULL;
+    Token *tok = token;
+    token = token->next;
+    return tok;
+}
 Token *consume_ident() {
     if(token->kind != TK_IDENT)
         return NULL;
@@ -201,6 +208,11 @@ Token *tokenize() {
         if(strncmp(p, "int",3) == 0 && !is_alnum(p[3])) {
             cur = new_token(TK_TYPE, cur, p, 3);
             p += 3;
+            continue;
+        }
+        if(strncmp(p, "sizeof",6) == 0 && !is_alnum(p[6])) {
+            cur = new_token(TK_SIZEOF, cur, p, 6);
+            p += 6;
             continue;
         }
 

@@ -121,4 +121,15 @@ assert 8 "int main() {
   return *q;
 }"
 
+assert 4 "int main() {
+  int x;
+  sizeof(x);
+}"
+assert 8 "int main() {
+  int *y;
+  sizeof(y);
+}"
+assert 4 "int main() {
+  sizeof(sizeof(1));
+}"
 echo OK

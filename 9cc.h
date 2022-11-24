@@ -20,6 +20,7 @@ typedef enum {
     TK_FOR,      //for
     TK_BLOCK,   //{}
     TK_TYPE,    //型
+    TK_SIZEOF,  //sizeof
 } TokenKind;
 typedef struct Token Token;
 // トークン型
@@ -112,6 +113,7 @@ Node *new_node(NodeKind kind);
 Node *new_binary(NodeKind kind, Node *lhs, Node *rhs);
 Node *new_node_num(int val);
 
+Token *consume_sizeof();
 Token *consume_return();
 Token *consume_if();
 Token *consume_else();
