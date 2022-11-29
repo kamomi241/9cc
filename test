@@ -17,6 +17,22 @@ assert() {
   fi
 }
 
+assert 1 "int main() {
+  int a[2];
+  *a = 1;
+  int *p;
+  p = a;
+  return *p;
+}"
+assert 3 "int main() {
+  int a[2];
+  *a = 1;
+  *(a + 1) = 2;
+  int *p;
+  p = a;
+  return *p + *(p + 1);
+}"
+
 assert 42 "int main() {return 42;}"
 assert 41 "int main() {12 + 34 - 5 ;}"
 assert 15 "int main() {5*(9-6);}"
@@ -132,4 +148,5 @@ assert 8 "int main() {
 assert 4 "int main() {
   sizeof(sizeof(1));
 }"
+  
 echo OK

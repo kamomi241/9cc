@@ -116,7 +116,6 @@ Node *assign() {
 }
 Node *equality() {
     Node *node = relational();
-
     for(;;){
         if (consume("=="))
             node = new_binary(ND_EQ,node,relational());
@@ -128,7 +127,6 @@ Node *equality() {
 }
 Node *relational() {
     Node *node = add();
-
     for(;;) {
         if(consume("<"))
             node = new_binary(ND_LT,node,add());
@@ -144,11 +142,10 @@ Node *relational() {
 }
 Node *add() {
     Node *node = mul();
-
     for(;;) {
         if(consume("+")) {
             Node *r = mul();
-            if (node->type && node->type->ty == PTR) {
+            if (node->type && node->type->ty != INT) {
                 int n = node->type->ptr_to->ty == INT ? 4 : 8;
                 r = new_binary(ND_MUL, r, new_node_num(n));
             }
@@ -156,13 +153,13 @@ Node *add() {
         }
         else if (consume("-")) {
             Node *r = mul();
-            if (node->type && node->type->ty == PTR) {
+            if (node->type && node->type->ty != INT) {
                 int n = node->type->ptr_to->ty == INT ? 4 : 8;
                 r = new_binary(ND_MUL, r, new_node_num(n));
             }
             node = new_binary(ND_SUB, node, r);
         }
-        else 
+        else
             return node;
     }
 }
@@ -231,6 +228,15 @@ Node *primary() {
                 }
                 return node;
             }
+            //配列
+            if(consume("[")) {
+                Type *t = calloc(1, sizeof(Type));
+                t->array_size = expect_number();
+                t->ty = ARRAY;
+                t->ptr_to = type;
+                type = t;
+                expect("]");
+            }
             //変数検索
             Node *node = calloc(1, sizeof(Node));
             node->kind = ND_LVAR;
@@ -250,6 +256,7 @@ Node *primary() {
                     lvar->offset = locals->offset + 8;
                 lvar->type = type;
                 node->type =lvar->type;
+                node->name = lvar->name;
                 node->offset = lvar->offset;
                 locals = lvar;
             }
@@ -267,7 +274,7 @@ Node *primary() {
             node->offset = lvar->offset;
             node->type =lvar->type;
             return node;
-        } 
+        }
     }
     
     // そうでなければ数値のはず

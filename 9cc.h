@@ -32,10 +32,12 @@ struct Token {
     int len;        // トークンの長さ
 };
 
+//ポインタ,配列
 typedef struct Type Type;
 struct Type {
-  enum { INT, PTR } ty;
+  enum { INT, PTR, ARRAY } ty;
   struct Type *ptr_to;
+  size_t array_size;
 };
 
 typedef struct LVar LVar;
@@ -89,6 +91,7 @@ typedef enum {
     ND_FUNCBLOCK,//関数の定義
     ND_ADDR,     //単項&
     ND_DEREF,    //単項*
+    ND_ARRAY,    //ポインタ
 } NodeKind;
 typedef struct Node Node;
 // 抽象構文木のノードの型
@@ -103,8 +106,9 @@ struct Node {
     char *function; //関数
     int len;        //変数の長さ
     int val;       // kindがND_NUMの場合のみ使う
-    int offset;    // kindがND_LVARの場合のみ使う
+    int offset;    // kindがND_LVARの場合のみ使うRBP
     Type *type;    //ポインタか確認
+    char *name;    //配列の変数
 };
 
 extern Node *code[];
