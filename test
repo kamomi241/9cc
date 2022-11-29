@@ -19,10 +19,11 @@ assert() {
 
 assert 1 "int main() {
   int a[2];
-  *a = 1;
+  int y = 0;
+  a[y] = 1;
   int *p;
   p = a;
-  return *p;
+  return p[0];
 }"
 assert 3 "int main() {
   int a[2];

@@ -273,6 +273,16 @@ Node *primary() {
             node->kind = ND_LVAR;
             node->offset = lvar->offset;
             node->type =lvar->type;
+            if(consume("[")) {
+                Node *add = calloc(1, sizeof(Node));
+                add->kind = ND_ADD;
+                add->lhs = node;
+                add->rhs = expr();
+                node = calloc(1, sizeof(Node));
+                node->kind = ND_DEREF;
+                node->lhs = add;
+                expect("]");
+            }
             return node;
         }
     }
