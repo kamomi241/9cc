@@ -5,7 +5,7 @@ assert() {
 
   ./9cc "$input" > tmp.s
   cc -c foo.c
-  cc -o tmp tmp.s foo.o
+  cc -no-pie -o tmp tmp.s foo.o
   ./tmp
   actual="$?"
 
@@ -16,7 +16,6 @@ assert() {
     exit 1
   fi
 }
-
 assert 1 "int main() {
   int a[2];
   int y = 0;
@@ -140,14 +139,23 @@ assert 8 "int main() {
 
 assert 4 "int main() {
   int x;
-  sizeof(x);
+  return sizeof(x);
 }"
 assert 8 "int main() {
   int *y;
-  sizeof(y);
+  return sizeof(y);
 }"
 assert 4 "int main() {
-  sizeof(sizeof(1));
+  return sizeof(sizeof(1));
 }"
-  
+
+assert 10 "
+    int a;
+    int b;
+    int main() {
+    a = 9;
+    b = 1;
+    return a + b;
+  }"
+
 echo OK

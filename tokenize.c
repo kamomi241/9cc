@@ -148,6 +148,13 @@ LVar *find_lvar(Token *tok) {
     return NULL;
 }
 
+LVar *global_lvar(Token *tok) {
+    for (LVar *var = global; var; var = var->next)
+        if (var->len == tok->len && !memcmp(tok->str, var->name, var->len))
+            return var;
+    return NULL;
+}
+
 bool startswith(char *p, char *q) {
     return memcmp(p, q, strlen(q)) == 0;
 }

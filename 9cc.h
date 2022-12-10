@@ -21,6 +21,7 @@ typedef enum {
     TK_BLOCK,   //{}
     TK_TYPE,    //型
     TK_SIZEOF,  //sizeof
+    TK_GLOBAL,  //global変数
 } TokenKind;
 typedef struct Token Token;
 // トークン型
@@ -51,8 +52,12 @@ struct LVar {
 };
 // ローカル変数
 extern LVar *locals;
+//グローバル変数
+
+extern LVar *global;
 
 LVar *find_lvar(Token *tok);
+LVar *global_lvar(Token *tok);
 Token *consume_ident();
 
 extern char *user_input;
@@ -92,6 +97,8 @@ typedef enum {
     ND_ADDR,     //単項&
     ND_DEREF,    //単項*
     ND_ARRAY,    //ポインタ
+    ND_GLOBAL,   //global変数
+    ND_GLOBAL_LVAR,
 } NodeKind;
 typedef struct Node Node;
 // 抽象構文木のノードの型
@@ -109,6 +116,7 @@ struct Node {
     int offset;    // kindがND_LVARの場合のみ使うRBP
     Type *type;    //ポインタか確認
     char *name;    //配列の変数
+    int size;
 };
 
 extern Node *code[];

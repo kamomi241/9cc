@@ -1,6 +1,7 @@
 #include "9cc.h"
 
 LVar *locals;
+LVar *global;
 Node *new_node(NodeKind kind) {
     Node *node = calloc(1, sizeof(Node));
     node->kind = kind;
@@ -38,17 +39,37 @@ Node *function() {
     tok = consume_ident();
     if(tok == NULL)
         error("関数がありません");
-    node = calloc(1, sizeof(Node));
-    node->kind = ND_FUNCBLOCK;
-    node->function = calloc(1, sizeof(char));
-    memcpy(node->function, tok->str,tok->len);
-    expect("(");
-    expect(")");
-    expect("{");
-    node->block = calloc(100,sizeof(Node));
-    for(int i = 0; !consume("}"); i++)
-        node->block[i] = stmt();
+    if(consume("(")) {
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_FUNCBLOCK;
+        node->function = calloc(1, sizeof(char));
+        memcpy(node->function, tok->str,tok->len);
+        expect(")");
+        expect("{");
+        node->block = calloc(100,sizeof(Node));
+        for(int i = 0; !consume("}"); i++)
+            node->block[i] = stmt();
+    }
+    else {
+        LVar *lvar = find_lvar(tok);
+        lvar = calloc(1, sizeof(LVar));
+        
+        node = calloc(1, sizeof(Node));
+        node->kind = ND_GLOBAL;
+        node->function = calloc(1, sizeof(char));
+        node->size = node->type == INT ? 4 : 8;
+        memcpy(node->function, tok->str,tok->len);
+        expect(";");
+        
+        lvar->type = node->type;
+        lvar->name = tok->str;
+        lvar->len = tok->len;
+        lvar->next = global;
+        global = lvar;
+        
+    }
     return node;
+    
 }
 
 Node *stmt() {
@@ -283,6 +304,16 @@ Node *primary() {
                 node->lhs = add;
                 expect("]");
             }
+            return node;
+        }
+        LVar *global = global_lvar(tok);
+        if (global) {
+            Node *node = calloc(1, sizeof(Node));
+            node->kind = ND_GLOBAL_LVAR;
+            node->offset = global->offset;
+            node->type =global->type;
+            node->function = calloc(100,sizeof(char));
+            memcpy(node->function, tok->str,tok->len);
             return node;
         }
     }
